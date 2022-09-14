@@ -1,40 +1,40 @@
 node{
      
     stage('SCM Checkout'){
-        git url: 'https://github.com/MithunTechnologiesDevOps/java-web-app-docker.git',branch: 'master'
+        git url: 'https://github.com/muthusamymohanraj/java-web-app-docker.git',branch: 'master'
     }
     
     stage(" Maven Clean Package"){
-      def mavenHome =  tool name: "Maven-3.5.6", type: "maven"
+      def mavenHome =  tool name: "Maven", type: "maven"
       def mavenCMD = "${mavenHome}/bin/mvn"
       sh "${mavenCMD} clean package"
       
-    } 
-    
+    }
     
     stage('Build Docker Image'){
-        sh 'docker build -t dockerhandson/java-web-app .'
+        sh 'docker build -t 9884453217/myproject .'
     }
     
     stage('Push Docker Image'){
-        withCredentials([string(credentialsId: 'Docker_Hub_Pwd', variable: 'Docker_Hub_Pwd')]) {
-          sh "docker login -u dockerhandson -p ${Docker_Hub_Pwd}"
+        withCredentials([string(credentialsId: 'docker_hub_password', variable: 'Dockerpassword')]) {
+          sh "docker login -u 9884453217 -p ${Dockerpassword}"
         }
-        sh 'docker push dockerhandson/java-web-app'
+        sh 'docker push 9884453217/myproject'
      }
      
-      stage('Run Docker Image In Dev Server'){
+     stage('Run Docker Image In Dev Server'){
         
-        def dockerRun = ' docker run  -d -p 8080:8080 --name java-web-app dockerhandson/java-web-app'
+        def dockerRun = ' docker run  -d -p 8181:8080 --name myproject 9884453217/myproject'
          
-         sshagent(['DOCKER_SERVER']) {
-          sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.20.72 docker stop java-web-app || true'
-          sh 'ssh  ubuntu@172.31.20.72 docker rm java-web-app || true'
-          sh 'ssh  ubuntu@172.31.20.72 docker rmi -f  $(docker images -q) || true'
-          sh "ssh  ubuntu@172.31.20.72 ${dockerRun}"
+         sshagent(['Docker_ssh_pwd']) {
+          sh 'ssh -o StrictHostKeyChecking=no ubuntu@13.233.89.19 docker stop myproject || true'
+          sh 'ssh  ubuntu@13.233.89.19 docker rm myproject || true'
+          sh 'ssh  ubuntu@13.233.89.19 docker rmi -f  $(docker images -q) || true'
+          sh "ssh  ubuntu@13.233.89.19 ${dockerRun}"
        }
-       
-    }
-     
-     
+
+
+
+}
+
 }
